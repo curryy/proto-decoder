@@ -26,6 +26,7 @@ import { ProtoDirectory } from "@/types/types";
 import { defineComponent } from "vue";
 import fs from "fs";
 import { CONFIG_FILE_NAME } from "@/constants";
+import { app, remote } from "electron";
 
 const Main = defineComponent({
   components: {
@@ -35,7 +36,11 @@ const Main = defineComponent({
     EmptyView,
   },
   created() {
-    fs.readFile(CONFIG_FILE_NAME, (err, data) => {
+    const userDataPath = app
+      ? app.getPath("userData")
+      : remote.app.getPath("userData");
+
+    fs.readFile(`${userDataPath}/${CONFIG_FILE_NAME}`, (err, data) => {
       if (err) throw err;
       const configData = JSON.parse(data.toString());
       this.activeTab = configData.activeTab || "";
@@ -58,7 +63,10 @@ const Main = defineComponent({
         null,
         2
       );
-      fs.writeFile(CONFIG_FILE_NAME, jsonData, (err) => {
+      const userDataPath = app
+        ? app.getPath("userData")
+        : remote.app.getPath("userData");
+      fs.writeFile(`${userDataPath}/${CONFIG_FILE_NAME}`, jsonData, (err) => {
         if (err) throw err;
       });
     },
